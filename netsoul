@@ -1,0 +1,60 @@
+#!/usr/bin/ruby
+
+require 'socket'
+require 'digest/md5'
+
+class NetSoul
+
+  def initialize()
+    @login = ""
+    @pass = ""
+    @location = "@School"
+    @data = "none"
+    @socket = nil
+  end
+
+  def authentify
+
+    def validate(str)
+      @socket.close() if !(str.eql? "rep 002 -- cmd en")
+    end
+
+    if (@socket && !@socket.closed?): @socket.close() end
+    @socket = TCPSocket.open('ns-server.epitech.net', 4242)
+    data = recv.split(" ")
+    send("auth_ag ext_user none none")
+    validate(recv)
+    send("ext_user_log #{@login} " + Digest::MD5.hexdigest("#{data[2]}-#{data[3]}/#{data[4]}#{@pass}") + " #{@location} #{@data}")
+    validate(recv)
+  end
+
+  def connect
+    while !@socket || @socket.closed?
+      authentify()
+      sleep(0.2)
+    end
+  end
+
+  def recv
+    connect()
+    data = @socket.gets.strip.chop
+  end
+
+  def send(str)
+    @socket.puts(str)
+  end
+
+  def start
+    while (str = recv.split(" "))
+      if (str[0].eql? "ping"): send("#{str[0]} #{str[1]}") end
+    end
+  end
+
+end
+
+
+#fork do
+#  [STDIN, STDOUT, STDERR].each { |o| o.close }
+  ns = NetSoul.new()
+  ns.start()
+#end
