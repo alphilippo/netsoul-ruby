@@ -6,8 +6,8 @@ require 'digest/md5'
 class NetSoul
 
   def initialize()
-    @login = ""
-    @pass = ""
+    @login = "appere_n"
+    @pass = "cGJPZ90]"
     @location = "@School"
     @data = "none"
     @socket = nil
@@ -53,8 +53,20 @@ class NetSoul
 end
 
 
-#fork do
-#  [STDIN, STDOUT, STDERR].each { |o| o.close }
+
+def start()
   ns = NetSoul.new()
   ns.start()
-#end
+end
+
+daemon = true
+ARGV.each { |av| daemon = false if (av == '--no-daemon') }
+
+if daemon == true
+  fork do
+    [STDIN, STDOUT, STDERR].each { |o| o.close }
+    start()
+  end
+else
+  start()
+end
